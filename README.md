@@ -1,6 +1,6 @@
-# tf-bluemix-loadbalanced-nginx-multi-region
+# Terraform Bluemix loadbalanced web servers
 
-A Terraform configuration template to deploy an IBM Cloud load balancer and _N_ number of web servers (nginx).
+An example Terraform configuration template to deploy an IBM Cloud load balancer and _N_ number of web servers (nginx).
 
 This template will create the following resources:
 
