@@ -118,7 +118,7 @@ To run this project execute the following steps:
 
 # Running in Multiple Data centers
 
-Simple run `terraform plan -var 'datacenter=lon02' -state=lon02.tfstate` or whatever your preferred datacenter is (replace `lon02` for both arguments), and repeat for `terraform apply`.
+Simply run `terraform plan -var 'datacenter=lon02' -state=lon02.tfstate` or whatever your preferred datacenter is (replace `lon02` for both arguments), and repeat for `terraform apply` with the same arguments.
 
 # Dependency Graph
 
