@@ -120,6 +120,10 @@ To run this project execute the following steps:
 
 Simply run `terraform plan -var 'datacenter=lon02' -state=lon02.tfstate` or whatever your preferred datacenter is (replace `lon02` for both arguments), and repeat for `terraform apply` with the same arguments.
 
+# Video of Terraform Execution
+
+[Click here to watch a video of Terraform Plan, Apply, and Destroy](https://youtu.be/vTKeWTfalTU)
+
 # Dependency Graph
 
 ![graph](graph.png)
