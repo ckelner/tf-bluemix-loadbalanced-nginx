@@ -15,8 +15,8 @@ provider "ibmcloud" {
 # http://ibmcloudterraformdocs.chriskelner.com/docs/providers/ibmcloud/r/infra_ssh_key.html
 ##############################################################################
 resource "ibmcloud_infra_ssh_key" "ssh_key" {
-  label = "interconnect-2017"
-  notes = "interconnect-2017"
+  label = "demo"
+  notes = "demo"
   # Public key, so this is completely safe
   public_key = "${var.public_key}"
 }
@@ -29,8 +29,8 @@ resource "ibmcloud_infra_virtual_guest" "web_node" {
   # number of nodes to create, will iterate over this resource
   count                = "${var.node_count}"
   # demo hostname and domain
-  hostname             = "interconnect2017-demo-web-node-${count.index+1}"
-  domain               = "interconnect2017demo.com"
+  hostname             = "demo-web-node-${count.index+1}"
+  domain               = "emo.com"
   # the operating system to use for the VM
   os_reference_code    = "${var.web_operating_system}"
   # the datacenter to deploy the VM to
@@ -44,14 +44,48 @@ resource "ibmcloud_infra_virtual_guest" "web_node" {
   ]
   # Installs nginx web server on our VM via SSH
   provisioner "remote-exec" {
+    connection {
+        type = "ssh"
+        user = "root"
+        # This is stored in a file not checked into source control
+        private_key = "${var.private_key_material}"
+    }
     inline = [
       "apt-get update -y",
-       # Install nginx
-      "apt-get install --yes --force-yes nginx",
-      # Overwrite default nginx welcome page w/ mac address of VM NIC
-      "echo \"<h1>I am $(cat /sys/class/net/eth0/address)</h1>\" > \"/var/www/html/index.nginx-debian.html\""
+      # Install nginx
+      "apt-get install --yes --force-yes nginx"
     ]
   }
+  provisioner "file" {
+    connection {
+        type = "ssh"
+        user = "root"
+        # This is stored in a file not checked into source control
+        private_key = "${var.private_key_material}"
+    }
+    source = "hello.conf"
+    destination = "/etc/nginx/conf.d/hello.conf"
+  }
+  provisioner "file" {
+    connection {
+        type = "ssh"
+        user = "root"
+        # This is stored in a file not checked into source control
+        private_key = "${var.private_key_material}"
+    }
+    source = "index.html"
+    destination = "/var/www/html/index.html"
+  }
+  # TODO: Cleanup -- old provisioner
+  #provisioner "remote-exec" {
+  #  inline = [
+  #    "apt-get update -y",
+  #     # Install nginx
+  #    "apt-get install --yes --force-yes nginx",
+  #    # Overwrite default nginx welcome page w/ mac address of VM NIC
+  #    "echo \"<h1>I am $(cat /sys/class/net/eth0/address)</h1>\" > \"/var/www/html/index.nginx-debian.html\""
+  #  ]
+  #}
   # applys tags to the VM
   tags = "${var.vm_tags}"
 }
@@ -113,6 +147,13 @@ variable datacenter {
 variable public_key {
   description = "Your public SSH key"
 }
+# This is stored in a file not checked into source control or passed in via command line or stored as a secret in a service wrapping terraform -- should be used with public_key_material (should be of the same key)
+variable "private_key_material" {
+  description = "The private key material used to connect via SSH; define in terraform.tfvars or if using a service like Terraform Enterprise define it there."
+  default = <<-EOF
+  ...
+  EOF
+}
 # The number of web nodes to deploy; You can adjust this number to create more
 # virtual machines in the IBM Cloud; adjusting this number also updates the
 # loadbalancer with the new node
@@ -140,7 +181,7 @@ variable vm_tags {
   default = [
     "nginx",
     "webserver",
-    "interconnect2017demo"
+    "demo"
   ]
 }
 
