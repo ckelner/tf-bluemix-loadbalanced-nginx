@@ -30,7 +30,7 @@ resource "ibmcloud_infra_virtual_guest" "web_node" {
   count                = "${var.node_count}"
   # demo hostname and domain
   hostname             = "demo-web-node-${count.index+1}"
-  domain               = "emo.com"
+  domain               = "demo.com"
   # the operating system to use for the VM
   os_reference_code    = "${var.web_operating_system}"
   # the datacenter to deploy the VM to
@@ -53,7 +53,9 @@ resource "ibmcloud_infra_virtual_guest" "web_node" {
     inline = [
       "apt-get update -y",
       # Install nginx
-      "apt-get install --yes --force-yes nginx"
+      "apt-get install --yes --force-yes nginx",
+      # Overwrite default nginx welcome page w/ mac address of VM NIC
+      "echo \"<h1>I am $(cat /sys/class/net/eth0/address)</h1>\" > \"/var/www/html/index.nginx-debian.html\""
     ]
   }
   provisioner "file" {
@@ -66,26 +68,6 @@ resource "ibmcloud_infra_virtual_guest" "web_node" {
     source = "hello.conf"
     destination = "/etc/nginx/conf.d/hello.conf"
   }
-  provisioner "file" {
-    connection {
-        type = "ssh"
-        user = "root"
-        # This is stored in a file not checked into source control
-        private_key = "${var.private_key_material}"
-    }
-    source = "index.html"
-    destination = "/var/www/html/index.html"
-  }
-  # TODO: Cleanup -- old provisioner
-  #provisioner "remote-exec" {
-  #  inline = [
-  #    "apt-get update -y",
-  #     # Install nginx
-  #    "apt-get install --yes --force-yes nginx",
-  #    # Overwrite default nginx welcome page w/ mac address of VM NIC
-  #    "echo \"<h1>I am $(cat /sys/class/net/eth0/address)</h1>\" > \"/var/www/html/index.nginx-debian.html\""
-  #  ]
-  #}
   # applys tags to the VM
   tags = "${var.vm_tags}"
 }
