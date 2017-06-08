@@ -1,3 +1,5 @@
+## This repo is deprecated; It uses a very old version of the IBM Terraform Provider
+
 # Terraform Bluemix loadbalanced web servers
 
 An example Terraform configuration template to deploy an IBM Cloud load balancer and _N_ number of web servers (nginx).
